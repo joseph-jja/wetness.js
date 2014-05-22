@@ -8,8 +8,11 @@ var cssFile, fs = require( 'fs' ),
     verbosity, arg,
     filedata, lines, rulename;
 
-//cssFile = process.argv[ 2 ];
-//verbosity = process.argv[ 3 ];
+function usage() {
+    console.log( "Usage: node wetness.js -f /path/to/file.css" );
+    console.log( "\tor" );
+    console.log( "Usage: node wetness.js -f /path/to/file.css -v" );
+}
 
 for ( arg = 2; arg < process.argv.length; arg++ ) {
     switch ( process.argv[ arg ] ) {
@@ -22,14 +25,13 @@ for ( arg = 2; arg < process.argv.length; arg++ ) {
         break;
     default:
         console.log( process.argv[ arg ] );
-        break;
+        usage();
+        return;
     }
 }
 
 if ( !cssFile ) {
-    console.log( "Usage: node wetness.js -f /path/to/file.css" );
-    console.log( "\tor" );
-    console.log( "Usage: node wetness.js -f /path/to/file.css -v" );
+    usage();
     return;
 }
 
