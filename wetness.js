@@ -26,7 +26,7 @@ for ( arg = 2; arg < process.argv.length; arg++ ) {
     default:
         console.log( process.argv[ arg ] );
         usage();
-        return;
+        break;
     }
 }
 
