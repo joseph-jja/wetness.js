@@ -30,6 +30,10 @@ lines = readline.createInterface({
     output: devNull
 });
 
+function trim(instr) {
+    return instr.replace(/^[\s|\t]*/g, '').replace(/[\s|\t]*$/g, '');
+}
+
 lines.on('line', function(cmd) {
     var property, value, linex, o, rn;
     if (cmd && cmd.match(/\{/) && !cmd.match(/\//)) {
@@ -37,7 +41,7 @@ lines.on('line', function(cmd) {
         rn = cmd.substring(0, cmd.indexOf("{"));
         console.log('rn ' + rn);
         if (rn.replace(/[\s|\t]*/g, '') !== '') {
-            rulename = rn;
+            rulename = trim(rn);
         }
     } else if (cmd && cmd.match(/\}/) && !cmd.match(/\//)) {
         inside = false;
@@ -52,7 +56,8 @@ lines.on('line', function(cmd) {
 
         o = {
             'name': [rulename],
-            'value': linex
+            'value': linex,
+            'count': 1
         };
 
         if (properties[linex]) {
@@ -62,11 +67,10 @@ lines.on('line', function(cmd) {
             properties[linex] = o;
             dupes[linex] = properties[linex];
         } else {
-            o['count'] = 1;
             properties[linex] = o;
         }
     } else if (!inside && cmd.replace(/[\s|\t]*/g, '') !== '') {
-        rulename = cmd;
+        rulename = trim(cmd);
     }
 });
 
