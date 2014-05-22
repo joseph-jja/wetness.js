@@ -6,7 +6,8 @@ var cssFile, fs = require( 'fs' ),
     inside = false,
     totalRuleCount = 0,
     verbosity, arg,
-    filedata, lines, cssSelector, thresholdPercent = 0;
+    filedata, lines,
+    cssSelector, thresholdPercent = 0;
 
 function usage() {
     console.log( "Usage: node wetness.js -f /path/to/file.css" );
@@ -56,8 +57,41 @@ lines = readline.createInterface( {
     output: devNull
 } );
 
+// simple string trim function
 function trim( instr ) {
     return instr.replace( /^[\s|\t]*/g, '' ).replace( /[\s|\t]*$/g, '' );
+}
+
+// update counters, the counters are globals
+// global - properties
+// global - totalRuleCount
+// global - dupes
+function updateCounters( props, selector ) {
+    var property, value, linex, o;
+
+    property = props.substring( 0, props.indexOf( ":" ) );
+    property = strip( property );
+    value = props.substring( props.indexOf( ":" ) );
+    value = strip( value );
+
+    linex = property + ":" + value + ";";
+
+    o = {
+        'name': [ selector ],
+        'value': linex,
+        'count': 1
+    };
+
+    if ( properties[ linex ] ) {
+        o = properties[ linex ];
+        o.count++;
+        o.name.push( cssSelector );
+        properties[ linex ] = o;
+        dupes[ linex ] = properties[ linex ];
+    } else {
+        properties[ linex ] = o;
+    }
+    totalRuleCount++;
 }
 
 lines.on( 'line', function ( cmd ) {
@@ -65,37 +99,18 @@ lines.on( 'line', function ( cmd ) {
     if ( cmd && cmd.match( /\{/ ) && !cmd.match( /\// ) ) {
         inside = true;
         rn = cmd.substring( 0, cmd.indexOf( "{" ) );
-        if ( rn.replace( /[\s|\t]*/g, '' ) !== '' ) {
+        if ( trim( rn ) !== '' ) {
             cssSelector = trim( rn );
         }
     } else if ( cmd && cmd.match( /\}/ ) && !cmd.match( /\// ) ) {
+        rn = cmd.substring( 0, cmd.indexOf( "}" ) );
+        if ( trim( rn ) !== '' ) {
+            updateCounters( rn, cssSelector );
+        }
         inside = false;
     } else if ( inside && cmd.match( /\:/ ) ) {
-
-        property = cmd.substring( 0, cmd.indexOf( ":" ) );
-        property = strip( property );
-        value = cmd.substring( cmd.indexOf( ":" ) );
-        value = strip( value );
-
-        linex = property + ":" + value + ";";
-
-        o = {
-            'name': [ cssSelector ],
-            'value': linex,
-            'count': 1
-        };
-
-        if ( properties[ linex ] ) {
-            o = properties[ linex ];
-            o.count++;
-            o.name.push( cssSelector );
-            properties[ linex ] = o;
-            dupes[ linex ] = properties[ linex ];
-        } else {
-            properties[ linex ] = o;
-        }
-        totalRuleCount++;
-    } else if ( !inside && cmd.replace( /[\s|\t]*/g, '' ) !== '' ) {
+        updateCounters( cmd, cssSelector );
+    } else if ( !inside && trim( cmd ) !== '' ) {
         cssSelector = trim( cmd );
     }
 } );
