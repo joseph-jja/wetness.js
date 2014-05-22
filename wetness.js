@@ -6,7 +6,7 @@ var cssFile, fs = require( 'fs' ),
     inside = false,
     totalRuleCount = 0,
     verbosity, arg,
-    filedata, lines, rulename, thresholdPercent = 0;
+    filedata, lines, cssSelector, thresholdPercent = 0;
 
 function usage() {
     console.log( "Usage: node wetness.js -f /path/to/file.css" );
@@ -66,7 +66,7 @@ lines.on( 'line', function ( cmd ) {
         inside = true;
         rn = cmd.substring( 0, cmd.indexOf( "{" ) );
         if ( rn.replace( /[\s|\t]*/g, '' ) !== '' ) {
-            rulename = trim( rn );
+            cssSelector = trim( rn );
         }
     } else if ( cmd && cmd.match( /\}/ ) && !cmd.match( /\// ) ) {
         inside = false;
@@ -80,7 +80,7 @@ lines.on( 'line', function ( cmd ) {
         linex = property + ":" + value + ";";
 
         o = {
-            'name': [ rulename ],
+            'name': [ cssSelector ],
             'value': linex,
             'count': 1
         };
@@ -88,7 +88,7 @@ lines.on( 'line', function ( cmd ) {
         if ( properties[ linex ] ) {
             o = properties[ linex ];
             o.count++;
-            o.name.push( rulename );
+            o.name.push( cssSelector );
             properties[ linex ] = o;
             dupes[ linex ] = properties[ linex ];
         } else {
@@ -96,7 +96,7 @@ lines.on( 'line', function ( cmd ) {
         }
         totalRuleCount++;
     } else if ( !inside && cmd.replace( /[\s|\t]*/g, '' ) !== '' ) {
-        rulename = trim( cmd );
+        cssSelector = trim( cmd );
     }
 } );
 
