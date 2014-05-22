@@ -7,7 +7,8 @@ var cssFile, fs = require( 'fs' ),
     totalRuleCount = 0,
     verbosity, arg,
     filedata, lines,
-    cssSelector, thresholdPercent = 0;
+    cssSelector, thresholdPercent = 0,
+    utils = require( "./libs/utils" );
 
 function usage() {
     console.log( "Usage: node wetness.js -f /path/to/file.css" );
@@ -45,10 +46,6 @@ if ( !fs.statSync( cssFile ).isFile() ) {
     return;
 }
 
-function strip( str ) {
-    return str.replace( /^ */g, '' ).replace( / *$/g, '' ).replace( /;/, '' );
-}
-
 filedata = fs.createReadStream( cssFile );
 devNull = fs.createWriteStream( '/dev/null' );
 
@@ -56,11 +53,6 @@ lines = readline.createInterface( {
     input: filedata,
     output: devNull
 } );
-
-// simple string trim function
-function trim( instr ) {
-    return instr.replace( /^[\s|\t]*/g, '' ).replace( /[\s|\t]*$/g, '' );
-}
 
 // update counters, the counters are globals
 // global - properties
@@ -70,9 +62,9 @@ function updateCounters( props, selector ) {
     var property, value, linex, o;
 
     property = props.substring( 0, props.indexOf( ":" ) );
-    property = strip( property );
+    property = utils.strip( property );
     value = props.substring( props.indexOf( ":" ) );
-    value = strip( value );
+    value = utils.strip( value );
 
     linex = property + ":" + value + ";";
 
@@ -99,19 +91,19 @@ lines.on( 'line', function ( cmd ) {
     if ( cmd && cmd.match( /\{/ ) && !cmd.match( /\// ) ) {
         inside = true;
         rn = cmd.substring( 0, cmd.indexOf( "{" ) );
-        if ( trim( rn ) !== '' ) {
-            cssSelector = trim( rn );
+        if ( utils.trim( rn ) !== '' ) {
+            cssSelector = utils.trim( rn );
         }
     } else if ( cmd && cmd.match( /\}/ ) && !cmd.match( /\// ) ) {
         rn = cmd.substring( 0, cmd.indexOf( "}" ) );
-        if ( trim( rn ) !== '' ) {
+        if ( utils.trim( rn ) !== '' ) {
             updateCounters( rn, cssSelector );
         }
         inside = false;
     } else if ( inside && cmd.match( /\:/ ) ) {
         updateCounters( cmd, cssSelector );
-    } else if ( !inside && trim( cmd ) !== '' ) {
-        cssSelector = trim( cmd );
+    } else if ( !inside && utils.trim( cmd ) !== '' ) {
+        cssSelector = utils.trim( cmd );
     }
 } );
 
