@@ -10,11 +10,11 @@ so you can get just rough numbers of duplicates or the actual duplicates;
 
 ## Usage
 
-	node wetness.js /path/to/file.css
+	node wetness.js -f /path/to/file.css
 
         or
 
-	node wetness.js /path/to/file.css -v
+	node wetness.js -f /path/to/file.css -v
 
 ## Installation
 
