@@ -6,7 +6,7 @@ var cssFile, fs = require( 'fs' ),
     inside = false,
     totalRuleCount = 0,
     verbosity, arg,
-    filedata, lines, rulename;
+    filedata, lines, rulename, thresholdPercent = 0;
 
 function usage() {
     console.log( "Usage: node wetness.js -f /path/to/file.css" );
@@ -23,6 +23,10 @@ for ( arg = 2; arg < process.argv.length; arg++ ) {
         arg++;
         cssFile = process.argv[ arg ];
         break;
+    case '-tp':
+        arg++;
+        thresholdPercent = process.argv[ arg ];
+        break;
     default:
         console.log( process.argv[ arg ] );
         usage();
@@ -36,7 +40,7 @@ if ( !cssFile ) {
 }
 
 if ( !fs.statSync( cssFile ).isFile() ) {
-    console.log( "Error: Supplied CSS file does not exist." );
+    console.log( "Error: Supplied CSS file does not exist: " + cssFile + "." );
     return;
 }
 
@@ -68,9 +72,9 @@ lines.on( 'line', function ( cmd ) {
         inside = false;
     } else if ( inside && cmd.match( /\:/ ) ) {
 
-        property = cmd.split( ":" )[ 0 ];
+        property = cmd.substring( 0, cmd.indexOf( ":" ) );
         property = strip( property );
-        value = cmd.split( ":" )[ 1 ];
+        value = cmd.substring( cmd.indexOf( ":" ) );
         value = strip( value );
 
         linex = property + ":" + value + ";";
@@ -108,7 +112,10 @@ lines.on( 'close', function ( cmd ) {
         dup += dupes[ i ].count;
     }
     pct = ct / totalRuleCount * 100;
-    console.log( "Duplicate rule count: " + ct );
-    console.log( "Total rule count: " + totalRuleCount );
-    console.log( "Percentage duplication: " + Number( pct ).toFixed( 2 ) + "%" );
+    if ( pct >= thresholdPercent ) {
+        console.log( "File: " + cssFile );
+        console.log( "Duplicate rule count: " + ct );
+        console.log( "Total rule count: " + totalRuleCount );
+        console.log( "Percentage duplication: " + Number( pct ).toFixed( 2 ) + "%" );
+    }
 } );
