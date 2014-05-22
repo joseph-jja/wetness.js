@@ -125,8 +125,8 @@ lines.on( 'close', function ( cmd ) {
     pct = ct / totalRuleCount * 100;
     if ( pct >= thresholdPercent ) {
         console.log( "File: " + cssFile );
-        console.log( "Duplicate rule count: " + ct );
-        console.log( "Total rule count: " + totalRuleCount );
-        console.log( "Percentage duplication: " + Number( pct ).toFixed( 2 ) + "%" );
+        console.log( "\tDuplicate rule count: " + ct );
+        console.log( "\tTotal rule count: " + totalRuleCount );
+        console.log( "\tPercentage duplication: " + Number( pct ).toFixed( 2 ) + "%" );
     }
 } );

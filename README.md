@@ -15,6 +15,12 @@ so you can get just rough numbers of duplicates or the actual duplicates;
         or
 
 	node wetness.js -f /path/to/file.css -v
+    
+## Command line options
+
+    -f filename
+    -v verbose mode shows selectors and properties
+    -tp threashold percent, the default is 0
 
 ## Installation
 
