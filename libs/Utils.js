@@ -7,8 +7,6 @@ function strip( str ) {
     return trim( str ).replace( /;/, '' );
 }
 
-
-
 module.exports = {
     trim: trim,
     strip: strip
