@@ -1,16 +1,9 @@
-var cssFile, fs = require( 'fs' ),
-    readline = require( 'readline' ),
-    properties = [],
-    dupes = [],
-    devNull,
-    inside = false,
-    totalRuleCount = 0,
+var cssFile,
+    thresholdPercent = 0,
     verbosity,
-    filedata, lines,
-    cssSelector, thresholdPercent = 0,
-    utils = require( "./libs/Utils" ),
+    files,
     fileProcessor = require( "./libs/FileProcessor" ),
-    rc;
+    fileList, rc, x;
 
 // function for the usage
 function usage() {
@@ -35,6 +28,10 @@ function usage() {
             arg++;
             thresholdPercent = process.argv[ arg ];
             break;
+        case '-l':
+            arg++;
+            fileList = process.argv[ arg ];
+            break;
         default:
             console.log( process.argv[ arg ] );
             usage();
@@ -43,13 +40,35 @@ function usage() {
     }
 } )();
 
-rc = fileProcessor.init( cssFile );
-if ( rc === fileProcessor.StatusCodes.EMPTY_FILE ) {
+fileProcessor.verbosity = verbosity;
+fileProcessor.thresholdPercent = thresholdPercent;
+
+if ( !cssFile && !fileList ) {
     usage();
-    return;
-} else if ( rc === fileProcessor.StatusCodes.NON_EXISTANT_FILE ) {
-    console.log( "Error: Supplied CSS file does not exist: " + cssFile + "." );
     return;
 }
 
-fileProcessor.processFile( cssFile );
+if ( cssFile ) {
+    rc = fileProcessor.init( cssFile );
+    if ( rc === fileProcessor.StatusCodes.EMPTY_FILE ) {
+        usage();
+        return;
+    } else if ( rc === fileProcessor.StatusCodes.NON_EXISTANT_FILE ) {
+        console.log( "Error: Supplied CSS file does not exist: " + cssFile + "." );
+        return;
+    }
+
+    fileProcessor.processFile( cssFile );
+} else if ( fileList ) {
+    files = fileList.split( "," );
+    for ( x = 0; x < files.length; x++ ) {
+        rc = fileProcessor.init( files[ x ] );
+        if ( rc === fileProcessor.StatusCodes.EMPTY_FILE ) {
+            console.log( "Error: empty name: " + files[ x ] + "." );
+        } else if ( rc === fileProcessor.StatusCodes.NON_EXISTANT_FILE ) {
+            console.log( "Error: Supplied CSS file does not exist: " + files[ x ] + "." );
+        } else if ( rc === fileProcessor.StatusCodes.OK ) {
+            fileProcessor.processFile( files[ x ] );
+        }
+    }
+}
