@@ -12,11 +12,16 @@ var fs = require( 'fs' ),
         totalRuleCount: 0,
         properties: [],
         dupes: [],
-        cssFile: ''
+        cssFile: []
     };
 
 function init( cssFile ) {
     var rc = statusCodes.OK;
+
+    counter.totalRuleCount = 0;
+    counter.properties = [];
+    counter.dupes = [];
+    counter.cssFile = '';
 
     if ( !cssFile ) {
         rc = statusCodes.EMPTY_FILE;
